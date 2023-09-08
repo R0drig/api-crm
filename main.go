@@ -27,8 +27,8 @@ func main() {
 		auth.GET("/user", handlers.getUserInfo)
 		auth.POST("/register-lead,", handlers.createLead)
 		auth.GET("/leads", handlers.showAllUsersLeads)
-		//auth.PATCH("/update-lead/:id")
-		//auth.DELETE("/update-lead/:id")
+		auth.PATCH("/update-lead/:id", handlers.updateUserLead)
+		auth.DELETE("/update-lead/:id", handlers.deleteUserLead)
 	}
 
 	app.Run(":8080")

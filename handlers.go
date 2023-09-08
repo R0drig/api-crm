@@ -4,6 +4,7 @@ import(
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"reflect"
 
 )
 func(h *Handler)registerUser(c *gin.Context) {
@@ -100,4 +101,62 @@ func (h *Handler) showAllUsersLeads(c *gin.Context,){
 		return
 	}
 	c.JSON(http.StatusOK, leads)
+}
+
+func (h *Handler) updateUserLead(c *gin.Context) {
+    id := c.Param("id")
+
+    var lead Lead
+    if err := db.First(&lead, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Lead not found"})
+        return
+    }
+
+    // Define a map to hold the updated data.
+    updateData := make(map[string]interface{})
+
+    // Attempt to bind the updated lead data from the request body (assuming it's in JSON format).
+    if err := c.ShouldBindJSON(&updateData); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    leadValue := reflect.ValueOf(&lead).Elem()
+    for fieldName, fieldValue := range updateData {
+        field := leadValue.FieldByName(fieldName)
+        if field.IsValid() {
+            if field.CanSet() {
+                // Convert the field value to the appropriate type
+                fieldValueTyped := reflect.ValueOf(fieldValue).Convert(field.Type())
+                field.Set(fieldValueTyped)
+            }
+        }
+    }
+
+    // Save the updated lead back to the database.
+    if err := db.Save(&lead).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update lead"})
+        return
+    }
+
+    c.JSON(http.StatusOK, lead) // Respond with the updated lead.
+}
+
+func (h *Handler) deleteUserLead(c *gin.Context) {
+    id := c.Param("id")
+    
+    // Implement code to find the user's lead with the given ID in your database.
+    var lead Lead
+    if err := h.db.First(&lead, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "UserLead not found"})
+        return
+    }
+
+    // Implement code to delete the user's lead from the database.
+    if err := db.Delete(&lead).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete UserLead"})
+        return
+    }
+
+    c.JSON(http.StatusNoContent, nil) // Respond with a 204 No Content status.
 }
