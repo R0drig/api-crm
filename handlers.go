@@ -4,8 +4,7 @@ import(
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"reflect"
-
+	
 )
 func(h *Handler)registerUser(c *gin.Context) {
 	var newUser User
@@ -63,7 +62,7 @@ func (h *Handler)getUserInfo(c *gin.Context) {
 }
 
 func (h *Handler) createLead(c *gin.Context){
-	userId, _ := c.Get("userID")
+	userId, _:= c.Get("userID")
 	userIDUint, ok := userId.(uint)
     if !ok {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID format in context"})
@@ -79,6 +78,8 @@ func (h *Handler) createLead(c *gin.Context){
 	db.Create(&newLead)
 	c.JSON(http.StatusCreated, newLead)
 }
+
+
 func (h *Handler) showAllUsersLeads(c *gin.Context,){
 	userId, exists := c.Get("userID")
 	if !exists {
@@ -91,7 +92,7 @@ func (h *Handler) showAllUsersLeads(c *gin.Context,){
         return
     }
 	var leads []Lead
-	if err := db.Where("CreateByID = ?", userIDUint).Find(&leads).Error;err != nil{
+	if err := db.Where("created_by_id = ?", userIDUint).Find(&leads).Error;err != nil{
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error()})
 		return
@@ -115,28 +116,17 @@ func (h *Handler) updateUserLead(c *gin.Context) {
     if err := c.ShouldBindJSON(&updateData); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
-    }
-
-    leadValue := reflect.ValueOf(&lead).Elem()
-    for fieldName, fieldValue := range updateData {
-        field := leadValue.FieldByName(fieldName)
-        if field.IsValid() {
-            if field.CanSet() {
-                // Convert the field value to the appropriate type
-                fieldValueTyped := reflect.ValueOf(fieldValue).Convert(field.Type())
-                field.Set(fieldValueTyped)
-            }
-        }
-    }
+	}
 
     // Save the updated lead back to the database.
-    if err := db.Save(&lead).Error; err != nil {
+    if err := db.Save(&updateData).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update lead"})
         return
     }
 
-    c.JSON(http.StatusOK, lead) // Respond with the updated lead.
+    c.JSON(http.StatusOK, updateData) // Respond with the updated lead.
 }
+
 
 func (h *Handler) deleteUserLead(c *gin.Context) {
     id := c.Param("id")

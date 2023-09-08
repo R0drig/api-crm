@@ -14,7 +14,7 @@ func main() {
 		panic("Failed to connect to the database")
 	}
 
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Lead{})
 
 	app := gin.Default()
 	handlers := newHandlers(db)
@@ -28,7 +28,7 @@ func main() {
 		auth.POST("/register-lead", handlers.createLead)
 		auth.GET("/leads", handlers.showAllUsersLeads)
 		auth.PATCH("/update-lead/:id", handlers.updateUserLead)
-		auth.DELETE("/update-lead/:id", handlers.deleteUserLead)
+		auth.DELETE("/delete-lead/:id", handlers.deleteUserLead)
 	}
 
 	app.Run(":8080")
