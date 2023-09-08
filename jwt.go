@@ -60,4 +60,5 @@ func authenticateUser(c *gin.Context) {
 	}
 	
 	c.Set("user", user)
+	c.Set("userID", userID)
 }

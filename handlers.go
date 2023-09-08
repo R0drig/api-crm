@@ -63,11 +63,7 @@ func (h *Handler)getUserInfo(c *gin.Context) {
 }
 
 func (h *Handler) createLead(c *gin.Context){
-	userId, exists := c.Get("ID")
-	if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
-        return
-    }
+	userId, _ := c.Get("userID")
 	userIDUint, ok := userId.(uint)
     if !ok {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID format in context"})
@@ -84,7 +80,7 @@ func (h *Handler) createLead(c *gin.Context){
 	c.JSON(http.StatusCreated, newLead)
 }
 func (h *Handler) showAllUsersLeads(c *gin.Context,){
-	userId, exists := c.Get("ID")
+	userId, exists := c.Get("userID")
 	if !exists {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID not found in context"})
         return

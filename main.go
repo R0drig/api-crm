@@ -25,7 +25,7 @@ func main() {
 	auth.Use(authenticateUser)
 	{
 		auth.GET("/user", handlers.getUserInfo)
-		auth.POST("/register-lead,", handlers.createLead)
+		auth.POST("/register-lead", handlers.createLead)
 		auth.GET("/leads", handlers.showAllUsersLeads)
 		auth.PATCH("/update-lead/:id", handlers.updateUserLead)
 		auth.DELETE("/update-lead/:id", handlers.deleteUserLead)
